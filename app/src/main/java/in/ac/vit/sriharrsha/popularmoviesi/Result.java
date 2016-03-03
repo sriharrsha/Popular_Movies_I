@@ -1,4 +1,3 @@
-
 package in.ac.vit.sriharrsha.popularmoviesi;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class Result {
     private String originalTitle;
     private String originalLanguage;
     private String title;
-    private String backdropPath;
+    private String backdrop_path;
     private double popularity;
     private int voteCount;
     private boolean video;
@@ -155,14 +154,14 @@ public class Result {
      * @return The backdropPath
      */
     public String getBackdropPath() {
-        return backdropPath;
+        return backdrop_path;
     }
 
     /**
      * @param backdropPath The backdrop_path
      */
     public void setBackdropPath(String backdropPath) {
-        this.backdropPath = backdropPath;
+        this.backdrop_path = backdrop_path;
     }
 
     /**
@@ -230,4 +229,24 @@ public class Result {
     }
 
 
+    @Override
+    public String toString() {
+        return "Result{" +
+                "poster_path='" + poster_path + '\'' +
+                ", adult=" + adult +
+                ", overview='" + overview + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", genreIds=" + genreIds +
+                ", id=" + id +
+                ", originalTitle='" + originalTitle + '\'' +
+                ", originalLanguage='" + originalLanguage + '\'' +
+                ", title='" + title + '\'' +
+                ", backdrop_path='" + backdrop_path + '\'' +
+                ", popularity=" + popularity +
+                ", voteCount=" + voteCount +
+                ", video=" + video +
+                ", voteAverage=" + voteAverage +
+                ", additionalProperties=" + additionalProperties +
+                '}';
+    }
 }

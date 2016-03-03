@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,8 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +49,6 @@ public class MainActivityFragment extends Fragment {
         inflater.inflate(R.menu.menu_main, menu);
 //        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 //        int defaultAction = sharedPref.getInt(getString(R.string.default_action), 0);
-//
 //        menu.findItem(defaultAction).setChecked(true);
     }
 
@@ -114,7 +114,7 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         call = movieDbService.listHighestRatedMovies();
-        posterImageAdapter = new PosterImageAdapter(getActivity(), null);
+        posterImageAdapter = new PosterImageAdapter(null);
         call.enqueue(new Callback<Movie>() {
             @Override
             public void onResponse(Response<Movie> response) {
@@ -130,27 +130,53 @@ public class MainActivityFragment extends Fragment {
                 Toast.makeText(getActivity(), "Failed !", Toast.LENGTH_LONG).show();
             }
         });
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-        gridView.setAdapter(posterImageAdapter);
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(posterImageAdapter);
+        recyclerView.setHasFixedSize(true);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        //recyclerView.setOnItemClickListener(this);
         return rootView;
     }
 
+    public static class PosterImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        ImageView imageHolder;
+        TextView title;
+        CardView cardView;
 
-    private class PosterImageAdapter extends BaseAdapter {
-        private static final String BASE_URL = "http://image.tmdb.org/t/p/w185/";
-        List<Result> movieData = Collections.emptyList();
-        LayoutInflater inflater;
-        Context context;
-
-        public PosterImageAdapter(Context context, ArrayList<Result> data) {
-            if (data != null)
-                this.movieData = data;
-            this.context = context;
-            inflater = LayoutInflater.from(this.context);
+        public PosterImageViewHolder(View itemView) {
+            super(itemView);
+            cardView = (CardView) itemView.findViewById(R.id.card_view);
+            cardView.setOnClickListener(this);
+            imageHolder = (ImageView) itemView.findViewById(R.id.movie_poster_image_view);
+            title = (TextView) itemView.findViewById(R.id.movie_title_bar);
         }
 
+
         @Override
-        public int getCount() {
+        public void onClick(View v) {
+
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Intent intent=new Intent(getActivity(),DetailedAcitivity.class);
+//                intent.putExtra("DATA", (Parcelable) data.getResults().get(position));
+//                startActivity(intent);
+//            }
+        }
+    }
+
+    private class PosterImageAdapter extends RecyclerView.Adapter<PosterImageViewHolder> {
+        private static final String BASE_URL = "http://image.tmdb.org/t/p/w185/";
+        List<Result> movieData = Collections.emptyList();
+
+        public PosterImageAdapter(ArrayList<Result> data) {
+            if (data != null)
+                this.movieData = data;
+        }
+
+
+        @Override
+        public int getItemCount() {
             if (this.movieData == null) {
                 return 0;
             }
@@ -158,11 +184,20 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        public Object getItem(int position) {
-            if (this.movieData != null)
-                return this.movieData.get(position);
-            else
-                return null;
+        public PosterImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_poster_item, parent, false);
+            PosterImageViewHolder posterImageViewHolder = new PosterImageViewHolder(v);
+            return posterImageViewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(PosterImageViewHolder holder, int position) {
+            Glide.with(getContext())
+                    .load(BASE_URL + this.movieData.get(position).getPosterPath())
+                    .fitCenter()
+                    .crossFade()
+                    .into(holder.imageHolder);
+            holder.title.setText(this.movieData.get(position).getTitle());
         }
 
         @Override
@@ -171,24 +206,16 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null)
-                convertView = inflater.inflate(R.layout.movie_poster_item, parent, false);
-
-            if (movieData.size() > 0) {
-                ImageView imageHolder = (ImageView) convertView.findViewById(R.id.movie_poster_image_view);
-                // Picasso.with(this.context).load(BASE_URL+this.movieData.get(position).getPosterPath()).into(imageHolder);
-                Glide
-                        .with(this.context)
-                        .load(BASE_URL + this.movieData.get(position).getPosterPath())
-                        .fitCenter()
-                        .crossFade()
-                        .into(imageHolder);
-
-                TextView title = (TextView) convertView.findViewById(R.id.movie_title_bar);
-                title.setText(this.movieData.get(position).getTitle());
-            }
-            return convertView;
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
         }
+
+//            if (movieData.size() > 0) {
+//
+//            }
+//            return convertView;
+
     }
+
+
 }
