@@ -1,28 +1,65 @@
 package in.ac.vit.sriharrsha.popularmoviesi;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Result {
+public class Result implements Parcelable {
 
+    public static final Creator<Result> CREATOR = new Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel in) {
+            return new Result(in);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
     private String poster_path;
     private boolean adult;
     private String overview;
-    private String releaseDate;
+    private String release_date;
     private List<Integer> genreIds = new ArrayList<Integer>();
     private int id;
-    private String originalTitle;
-    private String originalLanguage;
+    private String original_title;
+    private String original_language;
     private String title;
     private String backdrop_path;
     private double popularity;
-    private int voteCount;
+    private int vote_count;
     private boolean video;
-    private double voteAverage;
+    private double vote_average;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    protected Result(Parcel in) {
+        poster_path = in.readString();
+        adult = in.readByte() != 0;
+        overview = in.readString();
+        release_date = in.readString();
+        id = in.readInt();
+        original_title = in.readString();
+        original_language = in.readString();
+        title = in.readString();
+        backdrop_path = in.readString();
+        popularity = in.readDouble();
+        vote_count = in.readInt();
+        video = in.readByte() != 0;
+        vote_average = in.readDouble();
+    }
+
+    public double getVote_average() {
+        return vote_average;
+    }
+
+    public void setVote_average(double vote_average) {
+        this.vote_average = vote_average;
+    }
 
     /**
      * @return The posterPath
@@ -67,17 +104,17 @@ public class Result {
     }
 
     /**
-     * @return The releaseDate
+     * @return The release_date
      */
-    public String getReleaseDate() {
-        return releaseDate;
+    public String getRelease_date() {
+        return release_date;
     }
 
     /**
-     * @param releaseDate The release_date
+     * @param release_date The release_date
      */
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
+    public void setRelease_date(String release_date) {
+        this.release_date = release_date;
     }
 
     /**
@@ -112,28 +149,28 @@ public class Result {
      * @return The originalTitle
      */
     public String getOriginalTitle() {
-        return originalTitle;
+        return original_title;
     }
 
     /**
      * @param originalTitle The original_title
      */
     public void setOriginalTitle(String originalTitle) {
-        this.originalTitle = originalTitle;
+        this.original_title = originalTitle;
     }
 
     /**
-     * @return The originalLanguage
+     * @return The original_language
      */
     public String getOriginalLanguage() {
-        return originalLanguage;
+        return original_language;
     }
 
     /**
      * @param originalLanguage The original_language
      */
     public void setOriginalLanguage(String originalLanguage) {
-        this.originalLanguage = originalLanguage;
+        this.original_language = originalLanguage;
     }
 
     /**
@@ -179,17 +216,17 @@ public class Result {
     }
 
     /**
-     * @return The voteCount
+     * @return The vote_count
      */
-    public int getVoteCount() {
-        return voteCount;
+    public int getVote_count() {
+        return vote_count;
     }
 
     /**
-     * @param voteCount The vote_count
+     * @param vote_count The vote_count
      */
-    public void setVoteCount(int voteCount) {
-        this.voteCount = voteCount;
+    public void setVote_count(int vote_count) {
+        this.vote_count = vote_count;
     }
 
     /**
@@ -206,19 +243,6 @@ public class Result {
         this.video = video;
     }
 
-    /**
-     * @return The voteAverage
-     */
-    public double getVoteAverage() {
-        return voteAverage;
-    }
-
-    /**
-     * @param voteAverage The vote_average
-     */
-    public void setVoteAverage(double voteAverage) {
-        this.voteAverage = voteAverage;
-    }
 
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -235,18 +259,40 @@ public class Result {
                 "poster_path='" + poster_path + '\'' +
                 ", adult=" + adult +
                 ", overview='" + overview + '\'' +
-                ", releaseDate='" + releaseDate + '\'' +
+                ", release_date='" + release_date + '\'' +
                 ", genreIds=" + genreIds +
                 ", id=" + id +
-                ", originalTitle='" + originalTitle + '\'' +
-                ", originalLanguage='" + originalLanguage + '\'' +
+                ", originalTitle='" + original_title + '\'' +
+                ", original_language='" + original_language + '\'' +
                 ", title='" + title + '\'' +
                 ", backdrop_path='" + backdrop_path + '\'' +
                 ", popularity=" + popularity +
-                ", voteCount=" + voteCount +
+                ", vote_count=" + vote_count +
                 ", video=" + video +
-                ", voteAverage=" + voteAverage +
+                ", voteAverage=" + vote_average +
                 ", additionalProperties=" + additionalProperties +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(poster_path);
+        dest.writeByte((byte) (adult ? 1 : 0));
+        dest.writeString(overview);
+        dest.writeString(release_date);
+        dest.writeInt(id);
+        dest.writeString(original_title);
+        dest.writeString(original_language);
+        dest.writeString(title);
+        dest.writeString(backdrop_path);
+        dest.writeDouble(popularity);
+        dest.writeInt(vote_count);
+        dest.writeByte((byte) (video ? 1 : 0));
+        dest.writeDouble(vote_average);
     }
 }

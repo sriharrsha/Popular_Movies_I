@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Movie {
+public class MovieApiResponse {
 
     private int page;
     private List<Result> results = new ArrayList<Result>();
