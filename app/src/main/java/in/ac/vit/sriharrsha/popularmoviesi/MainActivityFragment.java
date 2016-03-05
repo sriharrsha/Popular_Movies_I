@@ -101,15 +101,12 @@ public class MainActivityFragment extends Fragment {
                         movieApiResponse = response.body();
                         posterImageAdapter.movieList = movieApiResponse.getResults();
                         posterImageAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), "Data Refreshed!", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
                         progressDialog.dismiss();
-                        Toast.makeText(getActivity(), "Failed to fetch Data!", Toast.LENGTH_LONG).show();
-
                     }
                 });
 
@@ -126,14 +123,12 @@ public class MainActivityFragment extends Fragment {
                         movieApiResponse = response.body();
                         posterImageAdapter.movieList = movieApiResponse.getResults();
                         posterImageAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(), "Data Refreshed!", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
 
-                        Toast.makeText(getActivity(), "Failed to Fetch Data!", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
                 });
@@ -173,14 +168,11 @@ public class MainActivityFragment extends Fragment {
                 posterImageAdapter.movieList = movieApiResponse.getResults();
                 posterImageAdapter.notifyDataSetChanged();
                 progressDialog.dismiss();
-                Toast.makeText(getActivity(), "Data Refreshed!", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e("POPULAR MOVIES RETROFIT", "Failed fetching");
-                Log.e("POPULAR MOVIES RETROFIT", t.getMessage());
-                Toast.makeText(getActivity(), "Failed to fetch Data!", Toast.LENGTH_LONG).show();
+                if (getActivity() != null)
                 progressDialog.dismiss();
             }
         });
