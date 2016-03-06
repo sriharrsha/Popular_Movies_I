@@ -59,19 +59,15 @@ public class MainActivityFragment extends Fragment {
         inflater.inflate(R.menu.menu_main, menu);
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String defaultAction = sharedPref.getString(getString(R.string.default_action), getString(R.string.mostpopular));
-        Log.i("pref", "default action is " + defaultAction + " is selected and called in oncreateoptions");
 
         MenuItem item = menu.findItem(R.id.action_sort_most_popular);
-        Log.i("pref", item.getTitle() + " is selected ");
         if (item.getTitle().toString().equalsIgnoreCase(defaultAction)) {
             item.setCheckable(true);
             item.setChecked(true);
-            Log.i("pref", item.getTitle() + " is selected and called in oncreateoptions");
         } else {
             item = menu.findItem(R.id.action_sort_high_rating);
             item.setCheckable(true);
             item.setChecked(true);
-            Log.i("pref", item.getTitle() + " is selected and called in oncreateoptions");
         }
     }
 
@@ -150,32 +146,41 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        String defaultAction = sharedPref.getString(getString(R.string.default_action), getString(R.string.mostpopular));
-        if (defaultAction.equals(getString(R.string.mostpopular))) {
-            call = movieDbService.listPopularMovies(API_KEY);
-
+        posterImageAdapter = new PosterImageAdapter(null);
+        if (savedInstanceState != null && savedInstanceState.containsKey("CACHE_RESPONSE")) {
+            movieApiResponse = savedInstanceState.getParcelable("CACHE_RESPONSE");
+            posterImageAdapter.movieList = movieApiResponse.getResults();
+            posterImageAdapter.notifyDataSetChanged();
+            if (progressDialog.isShowing())
+                progressDialog.dismiss();
+            Log.i("savedcache", "savedcache is restored");
         } else {
-            call = movieDbService.listHighestRatedMovies(API_KEY);
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            String defaultAction = sharedPref.getString(getString(R.string.default_action), getString(R.string.mostpopular));
+            if (defaultAction.equals(getString(R.string.mostpopular))) {
+                call = movieDbService.listPopularMovies(API_KEY);
+            } else {
+                call = movieDbService.listHighestRatedMovies(API_KEY);
+            }
+
+
+            call.enqueue(new Callback<MovieApiResponse>() {
+                @Override
+                public void onResponse(Response<MovieApiResponse> response) {
+                    movieApiResponse = response.body();
+                    posterImageAdapter.movieList = movieApiResponse.getResults();
+                    posterImageAdapter.notifyDataSetChanged();
+                    progressDialog.dismiss();
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    if (getActivity() != null)
+                        progressDialog.dismiss();
+                }
+            });
         }
 
-
-        posterImageAdapter = new PosterImageAdapter(null);
-        call.enqueue(new Callback<MovieApiResponse>() {
-            @Override
-            public void onResponse(Response<MovieApiResponse> response) {
-                movieApiResponse = response.body();
-                posterImageAdapter.movieList = movieApiResponse.getResults();
-                posterImageAdapter.notifyDataSetChanged();
-                progressDialog.dismiss();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (getActivity() != null)
-                progressDialog.dismiss();
-            }
-        });
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
         recyclerView.setAdapter(posterImageAdapter);
         recyclerView.setHasFixedSize(true);
@@ -183,6 +188,19 @@ public class MainActivityFragment extends Fragment {
         recyclerView.setLayoutManager(gridLayoutManager);
         return rootView;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("CACHE_RESPONSE", movieApiResponse);
+        Log.i("savedcache", "response is stored");
+
+        super.onSaveInstanceState(outState);
+    }
+
+
+
+
+
 
     public class PosterImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.movie_poster_image_view)
@@ -238,6 +256,8 @@ public class MainActivityFragment extends Fragment {
                     .load(BASE_URL + this.movieList.get(position).getPosterPath())
                     .fitCenter()
                     .crossFade()
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.drawable.ic_error)
                     .into(holder.imageHolder);
             holder.title.setText(this.movieList.get(position).getTitle());
             holder.data = this.movieList.get(position);

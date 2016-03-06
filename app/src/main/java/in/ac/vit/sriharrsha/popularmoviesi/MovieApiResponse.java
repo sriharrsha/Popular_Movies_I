@@ -1,17 +1,43 @@
 package in.ac.vit.sriharrsha.popularmoviesi;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MovieApiResponse {
+public class MovieApiResponse implements Parcelable {
 
+    public static final Creator<MovieApiResponse> CREATOR = new Creator<MovieApiResponse>() {
+        @Override
+        public MovieApiResponse createFromParcel(Parcel in) {
+            return new MovieApiResponse(in);
+        }
+
+        @Override
+        public MovieApiResponse[] newArray(int size) {
+            return new MovieApiResponse[size];
+        }
+    };
     private int page;
     private List<Result> results = new ArrayList<Result>();
     private int totalResults;
     private int totalPages;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    protected MovieApiResponse(Parcel in) {
+        page = in.readInt();
+        results = in.createTypedArrayList(Result.CREATOR);
+        totalResults = in.readInt();
+        totalPages = in.readInt();
+    }
+
+
+    public MovieApiResponse() {
+
+    }
 
     /**
      * @return The page
@@ -77,4 +103,16 @@ public class MovieApiResponse {
         this.additionalProperties.put(name, value);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(page);
+        dest.writeTypedList(results);
+        dest.writeInt(totalResults);
+        dest.writeInt(totalPages);
+    }
 }
